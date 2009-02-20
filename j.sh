@@ -1,17 +1,22 @@
-# maintains a jump-list of directories you actually use
-# old directories eventually fall off the list
-# inspired by Joel Schaerer's http://wiki.github.com/joelthelion/autojump
-# and something similar i had - but i could never get the dir list right.
+# j.sh
 #
-# INSTALL:
-#   source into .bashrc under your '[-z "$PS1" ] || return' line
-#   cd around for a while
+# j.sh maintains a jump-list of directories you actually use.  Old
+# directories eventually fall off the list.  It was inspired by
+# http://wiki.github.com/joelthelion/autojump and something similar, but
+# I could never get the dir list right.
 #
-# USE:
+# INSTALL
+# -------
+#   Source into .bashrc under your '[-z "$PS1" ] || return' line.
+#   Then cd around for a while.
+#
+# USAGE
+# -----
 #   j [--l] [regex1 ... regexn]
 #     regex1 ... regexn jump to the most used directory matching all masks
 #     --l               show the list instead of jumping
 #                       with no args, returns full list
+
 j() {
  # change jfile if you already have a .j file for something else
  jfile=$HOME/.j
@@ -49,6 +54,13 @@ j() {
   x=$*
   x=/${x#*/}
   [ -d "$x" ] && cd "$x"
+ elif [ "$1" = "--help" ] || [ "$1" = "--h" ]; then
+     echo "   j [--l] [regex1 ... regexn]" >&2
+     echo "     regex1 ... regexn jump to the most used directory matching all masks" >&2
+     echo "     --h               Show usage (this)" >&2
+     echo "     --l               Show the list instead of jumping" >&2
+     echo "                       with no args, shows full list" >&2
+     return 2
  else
   # prefer case sensitive
   cd=$(awk -v q="$*" -F"|" '
@@ -63,6 +75,9 @@ j() {
     }
    }
   ' $jfile 2>/dev/null | sort -nr | head -n 1 | cut -f 2)
+  if [ -z "$cd" ]; then
+      echo "warning: no matching directories found." >&2;
+  fi
   [ "$cd" ] && cd "$cd"
  fi
 }
