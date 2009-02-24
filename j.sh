@@ -19,7 +19,7 @@
 
 j() {
  # change jfile if you already have a .j file for something else
- jfile=$HOME/.j
+ local jfile=$HOME/.j
  if [ "$1" = "--add" ]; then
   shift
   # we're in $HOME all the time, let something else get all the good letters
@@ -51,9 +51,7 @@ j() {
   ' $jfile 2>/dev/null
  # if we hit enter on a completion just go there (ugh, this is ugly)
  elif [[ "$*" =~ "/" ]]; then
-  x=$*
-  x=/${x#*/}
-  [ -d "$x" ] && cd "$x"
+  local x=$*; x=/${x#*/}; [ -d "$x" ] && cd "$x"
  elif [ "$1" = "--help" ] || [ "$1" = "--h" ]; then
      echo "   j [--l] [regex1 ... regexn]" >&2
      echo "     regex1 ... regexn jump to the most used directory matching all masks" >&2
@@ -63,7 +61,7 @@ j() {
      return 2
  else
   # prefer case sensitive
-  cd=$(awk -v q="$*" -F"|" '
+  local cd=$(awk -v q="$*" -F"|" '
    BEGIN { split(q,a," ") }
    { for( i in a ) $1 !~ a[i] && $1 = ""; if( $1 ) { print $2 "\t" $1; x = 1 } }
    END {
